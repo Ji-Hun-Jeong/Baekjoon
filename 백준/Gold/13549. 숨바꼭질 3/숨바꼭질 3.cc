@@ -25,10 +25,6 @@ void Bfs()
 				visited[idx * 2] = true;
 				arr[idx * 2] = arr[idx];
 			}
-			else if (arr[idx] < arr[idx * 2])
-			{
-				arr[idx * 2] = arr[idx];
-			}
 		}
         if (0 <= idx - 1)
 		{
