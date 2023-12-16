@@ -16,78 +16,43 @@ bool operator >(const Edge& first, const Edge& second)
 {
 	return first.distance > second.distance;
 }
-vector<Edge> node[2001][2];
-int dist[2001][2];
-bool visited[2001][2];
-vector<int> vecDestNum;
-vector<int> finalDests;
 int sg, sh, gh;
-void InsertEdge(int u, int v, int dist)
-{
-	node[u][0].push_back({ v,dist });
-	node[v][0].push_back({ u,dist });
-
-	node[u][1].push_back({ v,dist });
-	node[v][1].push_back({ u,dist });
-}
-void Init(int order)
+void Init(int* dist,bool* visited)
 {
 	for (int i = 1; i <= n; ++i)
 	{
-		visited[i][order] = false;
-		dist[i][order] = INF;
+		visited[i]= false;
+		dist[i] = INF;
 	}
 }
-int Djikstra(int start, int end, int order)
+int Djikstra(const vector<Edge>* node,int* dist,bool* visited,int start, int end)
 {
-	Init(order);
+	Init(dist, visited);
 	priority_queue<Edge, vector<Edge>, greater<Edge>> q;
-	dist[start][order] = 0;
+	dist[start] = 0;
 	q.push({ start,0 });
 	while (!q.empty())
 	{
 		Edge edge = q.top(); q.pop();
 		int curNodeNum = edge.destNum;
-		if (visited[curNodeNum][order])
+		if (visited[curNodeNum])
 			continue;
-		visited[curNodeNum][order] = true;
-		for (const Edge& e : node[curNodeNum][order])
+		visited[curNodeNum] = true;
+		for (const Edge& e : node[curNodeNum])
 		{
 			int adjNodeNum = e.destNum;
-			if (dist[curNodeNum][order] + e.distance < dist[adjNodeNum][order])
+			if (dist[curNodeNum]+ e.distance < dist[adjNodeNum])
 			{
-				dist[adjNodeNum][order] = dist[curNodeNum][order] + e.distance;
-				q.push({ adjNodeNum,dist[adjNodeNum][order] });
+				dist[adjNodeNum] = dist[curNodeNum] + e.distance;
+				q.push({ adjNodeNum,dist[adjNodeNum] });
 			}
 		}
 	}
-	return dist[end][order];
+	return dist[end];
 }
 void Calculate()
 {
-	for (int dest : vecDestNum)
-	{
-		int first, second, third;
-		int dist1,dist2;
-
-		first = sg;
-		second = gh;
-		third = Djikstra(h, dest, 1);
-		dist1 = first + second + third;
-
-		first = sh;
-		second = gh;
-		third = Djikstra(g, dest, 1);
-		dist2 = first + second + third;
-		if (dist1 < INF && dist2 < INF)
-		{
-			int path = min(dist1, dist2);
-			if (path == dist[dest][0])
-			{
-				finalDests.push_back(dest);
-			}
-		}
-	}	
+	
 }
 int main()
 {
@@ -98,6 +63,12 @@ int main()
 	cin >> testK;
 	while (testK--)
 	{
+		vector<Edge> node[2001];
+		int firstDjikstraResult[2001];
+		int dist[2001];
+		bool visited[2001];
+		vector<int> vecDestNum;
+		vector<int> finalDests;
 		cin >> n >> m >> t;
 		cin >> s >> g >> h;
 		for (int i = 0; i < m; ++i)
@@ -106,7 +77,8 @@ int main()
 			cin >> a >> b >> d;
 			if ((a == g && b == h) || (a == h) && (b == g))
 				gh = d;
-			InsertEdge(a, b, d);
+			node[a].push_back({ b,d });
+			node[b].push_back({ a,d });
 		}
 		for (int i = 0; i < t; ++i)
 		{
@@ -114,20 +86,32 @@ int main()
 			cin >> destNum;
 			vecDestNum.push_back(destNum);
 		}
-		Djikstra(s, n, 0);
-		sg = dist[g][0];
-		sh = dist[h][0];
-		Calculate();
+		Djikstra(node,dist,visited,s, n);
+		sg = dist[g];
+		sh = dist[h];
+		for (int dest : vecDestNum)
+			firstDjikstraResult[dest] = dist[dest];
+		for (int dest : vecDestNum)
+		{
+			int dist1, dist2;
+
+			dist1 = sg + gh + Djikstra(node, dist, visited, h, dest);
+			if (dist1 == firstDjikstraResult[dest])
+			{
+				finalDests.push_back(dest);
+				continue;
+			}
+
+			dist2 = sh + gh + Djikstra(node, dist, visited, g, dest);
+			if (dist2 == firstDjikstraResult[dest])
+			{
+				finalDests.push_back(dest);
+				continue;
+			}
+		}
 		sort(finalDests.begin(), finalDests.end());
 		for (const int& i : finalDests)
 			cout << i << " ";
 		cout << "\n";
-		finalDests.clear();
-		vecDestNum.clear();
-		for (int i = 1; i <= n; ++i)
-		{
-			node[i][0].clear();
-			node[i][1].clear();
-		}
 	}
 }
