@@ -19,6 +19,9 @@ bool operator >(const Edge& first, const Edge& second)
 vector<Edge> node[2001][2];
 int dist[2001][2];
 bool visited[2001][2];
+vector<int> vecDestNum;
+vector<int> finalDests;
+int sg, sh, gh;
 void InsertEdge(int u, int v, int dist)
 {
 	node[u][0].push_back({ v,dist });
@@ -27,7 +30,6 @@ void InsertEdge(int u, int v, int dist)
 	node[u][1].push_back({ v,dist });
 	node[v][1].push_back({ u,dist });
 }
-vector<int> vecDestNum;
 void Init(int order)
 {
 	for (int i = 1; i <= n; ++i)
@@ -61,7 +63,6 @@ int Djikstra(int start, int end, int order)
 	}
 	return dist[end][order];
 }
-vector<int> finalDests;
 void Calculate()
 {
 	for (int dest : vecDestNum)
@@ -69,13 +70,13 @@ void Calculate()
 		int first, second, third;
 		int dist1,dist2;
 
-		first = Djikstra(s, g, 1);
-		second = Djikstra(g, h, 1);
+		first = sg;
+		second = gh;
 		third = Djikstra(h, dest, 1);
 		dist1 = first + second + third;
 
-		first = Djikstra(s, h, 1);
-		second = Djikstra(h, g, 1);
+		first = sh;
+		second = gh;
 		third = Djikstra(g, dest, 1);
 		dist2 = first + second + third;
 		if (dist1 < INF && dist2 < INF)
@@ -103,6 +104,8 @@ int main()
 		{
 			int a, b, d;
 			cin >> a >> b >> d;
+			if ((a == g && b == h) || (a == h) && (b == g))
+				gh = d;
 			InsertEdge(a, b, d);
 		}
 		for (int i = 0; i < t; ++i)
@@ -112,6 +115,8 @@ int main()
 			vecDestNum.push_back(destNum);
 		}
 		Djikstra(s, n, 0);
+		sg = dist[g][0];
+		sh = dist[h][0];
 		Calculate();
 		sort(finalDests.begin(), finalDests.end());
 		for (const int& i : finalDests)
