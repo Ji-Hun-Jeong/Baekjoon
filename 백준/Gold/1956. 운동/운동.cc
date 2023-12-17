@@ -35,7 +35,7 @@ int main()
 		arrNode[a][b] = c;
 	}
 	Floyd();
-	int min = INF;
+	int ans = INF;
 	int v = V % 2;
 	for (int i = 1; i <= V; ++i)
 	{
@@ -43,11 +43,10 @@ int main()
 		{
 			if (i == j)
 				continue;
-			if (arrNode[i][j] + arrNode[j][i] < min)
-				min = arrNode[i][j] + arrNode[j][i];
+			ans = min(ans, arrNode[i][j] + arrNode[j][i]);
 		}
 	}
-	if (min == INF)
-		min = -1;
-	cout << min;
+	if (ans == INF)
+		ans = -1;
+	cout << ans;
 }
