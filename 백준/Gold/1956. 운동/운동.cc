@@ -23,6 +23,9 @@ void Floyd()
 }
 int main()
 {
+    ios::sync_with_stdio(false);
+    cin.tie(nullptr);
+    cout.tie(nullptr);
 	cin >> V >> E;
 	for (int i = 1; i <= V; ++i)
 		fill(arrNode[i]+1, arrNode[i]+V+1, INF);
