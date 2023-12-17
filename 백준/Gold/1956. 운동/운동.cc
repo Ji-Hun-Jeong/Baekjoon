@@ -24,20 +24,10 @@ void Floyd()
 int main()
 {
 	cin >> V >> E;
-	for (int i = 0; i <= V; ++i)
-	{
-		for (int j = 0; j <= V; ++j)
-		{
-			if (i == j)
-			{
-				arrNode[i][j] = 0;
-			}
-			else
-			{
-				arrNode[i][j] = INF;
-			}	
-		}
-	}
+	for (int i = 1; i <= V; ++i)
+		fill(arrNode[i]+1, arrNode[i]+V+1, INF);
+	for (int i = 1; i <= V; ++i)
+		arrNode[i][i] = 0;
 	for (int i = 0; i < E; ++i)
 	{
 		int a, b, c;
