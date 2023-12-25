@@ -35,31 +35,7 @@ int main()
 	for (int i = 0; i < result1.size(); ++i)
 	{
 		int sum = C - result1[i];
-		int low = 0;
-		int high = result2.size() - 1;
-		int mid = 0;
-		while (low <= high)
-		{
-			mid = (low + high) / 2;
-			int midValue = result2[mid];
-			if (midValue < sum)
-				low = mid + 1;
-			else if (midValue > sum)
-				high = mid - 1;
-			else
-			{
-				break;
-			}
-		}
-		int j = mid;
-		for (; j < result2.size(); ++j)
-		{
-			if (result2[j] > sum)
-			{
-				break;
-			}
-		}
-		cnt += j;
+		cnt += upper_bound(result2.begin(), result2.end(), sum) - result2.begin();
 	}
 	cout << cnt;
 }
