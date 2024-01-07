@@ -1,10 +1,12 @@
 #include <iostream>
+#include <queue>
 #include <vector>
 #include <string>
+#include <set>
 #include <algorithm>
 using namespace std;
-vector<pair<int, int>> vec;
-int dp[100];
+int arr[501];
+int dp[501];
 int main()
 {
 	ios::sync_with_stdio(false);
@@ -12,31 +14,30 @@ int main()
 	cout.tie(nullptr);
 	int n;
 	cin >> n;
-	int num;
-	pair<int, int> p;
-	for (int i = 0; i < n; ++i)
+	int idx;
+	int maxIdx = 1;
+	for (int i = 1; i <= n; ++i)
 	{
-		cin >> num;
-		p.first = num;
-		cin >> num;
-		p.second = num;
-		vec.push_back(p);
+		cin >> idx;
+		maxIdx = max(idx, maxIdx);
+		cin >> arr[idx];
 	}
-	auto um = [](pair<int, int>& a, pair<int, int>& b) {return a.first < b.first; };
-	sort(vec.begin(), vec.end(), um);
-	dp[0] = 1;
-	int Max = dp[0];
-	for (int i = 1; i < n; ++i)
+	vector<int> vec;
+	for (int i = 1; i <= maxIdx; ++i)
+	{
+		if (arr[i])
+			vec.push_back(arr[i]);
+	}
+	int Max = 1;
+	for (int i = 0; i < vec.size(); ++i)
 	{
 		dp[i] = 1;
-		for (int j = i - 1; j >= 0; --j)
+		for (int j = 0; j < i; ++j)
 		{
-			if (vec[i].second > vec[j].second)
-			{
+			if (vec[j] < vec[i])
 				dp[i] = max(dp[i], dp[j] + 1);
-			}
 		}
-		Max = max(Max, dp[i]);
+		Max = max(dp[i], Max);
 	}
 	cout << n - Max;
 }
