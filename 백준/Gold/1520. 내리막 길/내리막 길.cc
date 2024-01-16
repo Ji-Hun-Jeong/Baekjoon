@@ -13,7 +13,7 @@ int m, n;
 int cnt = 0;
 int dx[] = {0, 0, -1, 1}; 
 int dy[] = {-1, 1, 0, 0}; 
-
+pair<int, int> offset[] = { {-1,0},{0,-1},{1,0},{0,1} };
 void input() {
 	cin >> m >> n; 
 
@@ -31,8 +31,8 @@ int dfs(int x, int y){
 
 	dp[x][y] = 0;
 	for(int i = 0; i < 4; i++){ 
-		int nx = x + dx[i]; 
-		int ny = y + dy[i]; 
+		int nx = x + offset[i].first;
+		int ny = y + offset[i].second;
 
 		if(nx < 0 || nx >= m || ny < 0 || ny >= n) continue; 
 
