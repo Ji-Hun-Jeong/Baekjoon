@@ -3,29 +3,25 @@
 using namespace std;
 
 int N, K;
-int DP[101][100001];
+int DP[2][100001];
 int W[101];
 int V[101];
 
-// 점화식 max(DP[i-1][j], DP[i-1][j-W[i]])
 
 int main()
 {
 	cin >> N >> K;
-
 	for (int i = 1; i <= N; i++)
 		cin >> W[i] >> V[i];
-
+	int order = 1;
 	for (int i = 1; i <= N; i++)
 	{
 		for (int j = 1; j <= K; j++)
 		{
-			 
-			 if (j - W[i] >= 0) DP[i][j] = max(DP[i - 1][j], DP[i - 1][j - W[i]] + V[i]);
-			 else DP[i][j] = DP[i - 1][j];
+			if (j - W[i] >= 0) DP[order][j] = max(DP[!order][j], DP[!order][j - W[i]] + V[i]);
+			else DP[order][j] = DP[!order][j];
 		}
+		order = !order;
 	}
-
-	cout << DP[N][K];
-
+	cout << DP[!order][K];
 }
