@@ -1,31 +1,25 @@
 #include <iostream>
-#include <vector>
 #include <string>
-#include <algorithm>
+#include <cmath>
 using namespace std;
+long long A = 0, B = 0, C = 0;
 
-int f(int a, int b, int c)
+long long f(long long n)
 {
-	unsigned int Double = 1;
-	unsigned long long result = a % c;
-	while (Double != b)
-	{
-		if (Double * 2 <= b)
-		{
-			result = (result * result) % c;
-			Double *= 2;
-		}
-		else if (Double * 2 > b)
-		{
-			result = (result * f(a, b - Double, c)) % c;
-			return result;
-		}
-	}
-	return result;
+	if (1 == n)
+		return A % C;
+	long long value = f(n / 2) % C;
+	long long result = value * value % C;
+	if (n % 2 == 0)
+		return result;
+	else
+		return (result % C) * (A % C);
 }
 int main()
 {
-	int a, b, c;
-	cin >> a >> b >> c;
-	cout << f(a, b, c);
+	ios_base::sync_with_stdio(false);  
+	cin.tie(NULL);
+	cout.tie(NULL);
+	cin >> A >> B >> C;
+	cout << f(B) % C;
 }
