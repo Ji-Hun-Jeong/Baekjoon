@@ -1,61 +1,78 @@
 #include <iostream>
-#include <queue>
 #include <vector>
-#include <string>
+#include <queue>
 #include <algorithm>
-using namespace std;
-#define SIZE 1000
-int n, m;
-int arr[SIZE][SIZE];
-queue<pair<int, int>> q;
-pair<int, int> offset[] = { {-1,0},{1,0},{0,1},{0,-1} };
-void bfs()
+
+uint32_t N, M;
+uint32_t Tomato[1000][1000] = { 0 };
+uint32_t NumOfAllTomato = 0;
+uint32_t NumOfRipeTomato = 0;
+
+struct TTomato
 {
-	while (!q.empty())
+	int32_t x;
+	int32_t y;
+	uint32_t day;
+};
+
+std::queue<TTomato> RipeTomatos;
+uint32_t MinDay = 0;
+void Bfs()
+{
+	while (RipeTomatos.empty() == false)
 	{
-		pair<int, int> pos = q.front();
-		q.pop();
-		for (int i = 0; i < 4; ++i)
+		TTomato RipeTomato = RipeTomatos.front();
+		RipeTomatos.pop();
+
+		int32_t x = RipeTomato.x;
+		int32_t y = RipeTomato.y;
+
+		int32_t NextXs[4] = { x,x - 1,x,x + 1 };
+		int32_t NextYs[4] = { y + 1,y,y - 1,y };
+		uint32_t NextDay = RipeTomato.day + 1;
+		for (size_t i = 0; i < 4; ++i)
 		{
-			int adjX = pos.first + offset[i].first;
-			int adjY = pos.second + offset[i].second;
-			if (0 <= adjX && adjX < m && 0 <= adjY && adjY < n && 0 == arr[adjY][adjX])
-			{
-				arr[adjY][adjX] = arr[pos.second][pos.first] + 1;
-				q.push({ adjX,adjY });
-			}
+			int32_t NextX = NextXs[i];
+			int32_t NextY = NextYs[i];
+
+			if (NextX < 0 || NextX >= M)
+				continue;
+			if (NextY < 0 || NextY >= N)
+				continue;
+			if (Tomato[NextY][NextX] == -1 || Tomato[NextY][NextX] == 1)
+				continue;
+			NumOfRipeTomato += 1;
+			Tomato[NextY][NextX] = 1;
+			RipeTomatos.push({ NextX, NextY, NextDay });
+			MinDay = NextDay;
 		}
 	}
 }
 int main()
 {
-	ios::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
-	cin >> m >> n;
-	for (int i = 0; i < n; ++i)
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(NULL);
+
+	std::cin >> M >> N;
+
+	for (uint32_t i = 0; i < N; ++i)
 	{
-		for (int j = 0; j < m; ++j)
+		for (uint32_t j = 0; j < M; ++j)
 		{
-			cin >> arr[i][j];
-			if (1 == arr[i][j])
-				q.push({ j,i });
-		}
-	}
-	bfs();
-	int max = -1;
-	for (int i = 0; i < n; ++i)
-	{
-		for (int j = 0; j < m; ++j)
-		{
-			if (0 == arr[i][j])
+			std::cin >> Tomato[i][j];
+			if (Tomato[i][j] == -1)
+				continue;
+			NumOfAllTomato += 1;
+			if (Tomato[i][j] == 1)
 			{
-				cout << -1;
-				return 0;
+				NumOfRipeTomato += 1;
+				RipeTomatos.push({ int32_t(j),int32_t(i), 0 });
 			}
-			if (max < arr[i][j])
-				max = arr[i][j];
 		}
 	}
-	cout << max - 1;
+	Bfs();
+	if (NumOfRipeTomato == NumOfAllTomato)
+		std::cout << MinDay << std::endl;
+	else
+		std::cout << -1 << std::endl;
 }
