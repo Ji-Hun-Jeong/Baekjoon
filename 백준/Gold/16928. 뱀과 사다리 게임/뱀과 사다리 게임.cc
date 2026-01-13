@@ -1,65 +1,60 @@
 #include <iostream>
-#include <queue>
 #include <vector>
-#include <string>
+#include <queue>
 #include <algorithm>
-using namespace std;
-#define SIZE 101
-int n, m;
-struct Info
+
+uint32_t N, M;
+uint32_t Edges[101] = { 0 };
+uint32_t Counts[101] = { 0 };
+
+void Bfs()
 {
-	int link;
-	int cnt;
-};
-Info arr[SIZE];
-void bfs()
-{
-	queue<int> q;
-	q.push(1);
-	while (!q.empty())
+	std::queue<uint32_t> Spaces;
+	Spaces.push(1);
+
+	while (Spaces.empty() == false)
 	{
-		int idx = q.front();
-		q.pop();
-		if (arr[idx].link)
+		uint32_t Space = Spaces.front();
+		Spaces.pop();
+
+		if (Space == 100)
+			return;
+
+		for (size_t i = 1; i <= 6; ++i)
 		{
-			if (arr[arr[idx].link].cnt)
-				arr[arr[idx].link].cnt = min(arr[idx].cnt, arr[arr[idx].link].cnt);
-			else
-				arr[arr[idx].link].cnt = arr[idx].cnt;
-			idx = arr[idx].link;
-		}
-		for (int i = 1; i <= 6; ++i)
-		{
-			if (idx + i < SIZE && !arr[idx + i].cnt)
-			{
-				q.push(idx + i);
-				arr[idx + i].cnt = arr[idx].cnt + 1;
-			}
+			uint32_t NextSpace = Space + i;
+			if (NextSpace > 100)
+				continue;
+			if (Counts[NextSpace])
+				continue;
+
+			uint32_t FinalSpace = NextSpace;
+			uint32_t JumpSpace = Edges[NextSpace];
+			if (JumpSpace)
+				FinalSpace = JumpSpace;
+
+			if (Counts[FinalSpace])
+				continue;
+			Counts[FinalSpace] = Counts[Space] + 1;
+			Spaces.push(FinalSpace);
 		}
 	}
 }
 int main()
 {
-	ios::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
-	cin >> n >> m;
-	for (int i = 0; i < n; ++i)
+	std::cin >> N >> M;
+	for (uint32_t i = 0; i < N; ++i)
 	{
-		int idx = 0;
-		int link = 0;
-		cin >> idx;
-		cin >> link;
-		arr[idx].link = link;
+		uint32_t X = 0, Y = 0;
+		std::cin >> X >> Y;
+		Edges[X] = Y;
 	}
-	for (int i = 0; i < m; ++i)
+	for (uint32_t i = 0; i < M; ++i)
 	{
-		int idx = 0;
-		int link = 0;
-		cin >> idx;
-		cin >> link;
-		arr[idx].link = link;
+		uint32_t U = 0, V = 0;
+		std::cin >> U >> V;
+		Edges[U] = V;
 	}
-	bfs();
-	cout << arr[SIZE - 1].cnt;
+	Bfs();
+	std::cout << Counts[100];
 }
