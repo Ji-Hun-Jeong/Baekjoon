@@ -1,80 +1,70 @@
 #include <iostream>
-#include <queue>
 #include <vector>
-#include <string>
-#include <set>
+#include <queue>
 #include <algorithm>
-using namespace std;
+#include <set>
 
-int u, v;
-int V, E;
-set<int> s[20001];
-bool visited[20001];
-void insertEdge(int u, int v)
+int32_t K, V, E;
+const int32_t MaxVertex = 20001;
+
+bool Bfs(std::queue<int32_t>* EdgeInfos)
 {
-	s[u].insert(v);
-	s[v].insert(u);
-}
-bool bfs(int u)
-{
-	if (visited[u])
-		return true;
-	set<int> set[2];
-	queue<pair<int, int>> q;
-	q.push({ u,0 });
-	visited[u] = true;
-	while (!q.empty())
+	char Colors[MaxVertex] = { 0 };
+	
+	for (int32_t i = 1; i <= V; ++i)
 	{
-		pair<int, int> front = q.front();
-		q.pop();
-		auto iter = s[front.first].begin();
-		for (; iter != s[front.first].end(); ++iter)
+		if (Colors[i])
+			continue;
+
+		std::queue<int32_t> Vertices;
+		Vertices.emplace(i);
+		Colors[i] = 1;
+
+		while (Vertices.empty() == false)
 		{
-			if (!visited[*iter])
+			int32_t Vertex = Vertices.front();
+			Vertices.pop();
+
+			std::queue<int32_t>& EdgeInfo = EdgeInfos[Vertex];
+			char Color = Colors[Vertex];
+			while (EdgeInfo.empty() == false)
 			{
-				q.push({ *iter,!front.second });
-				set[!front.second].insert(*iter);
-				visited[*iter] = true;
-			}
-			else
-			{
-				if (set[front.second].find(*iter) != set[front.second].end())
-					return false;
+				int32_t NextVertex = EdgeInfo.front();
+				EdgeInfo.pop();
+
+				if (Colors[NextVertex] && Colors[NextVertex] == Color)
+					return true;
+				else
+					Colors[NextVertex] = Color == 1 ? 2 : 1;
+
+				Vertices.emplace(NextVertex);
 			}
 		}
 	}
-	return true;
+	return false;
 }
 int main()
 {
-	ios::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
-	int testK = 0;
-	cin >> testK;
-	while (testK--)
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+	std::cout.tie(nullptr);
+
+	std::cin >> K;
+	while (K--)
 	{
-		cin >> V >> E;
-		for (int i = 0; i < E; ++i)
+		std::queue<int32_t> EdgeInfos[MaxVertex];
+		std::cin >> V >> E;
+		for (int32_t i = 0; i < E; ++i)
 		{
-			cin >> u >> v;
-			insertEdge(u, v);
+			int32_t u = 0;
+			int32_t v = 0;
+			std::cin >> u >> v;
+			EdgeInfos[u].push(v);
+			EdgeInfos[v].push(u);
 		}
-		bool b = true;
-		for (int i = 1; i <= V; ++i)
-		{
-			b = bfs(i);
-			if (!b)
-				break;		
-		}
-		if (b)
-			cout << "YES\n";
+		if (Bfs(EdgeInfos))
+			std::cout << "NO\n";
 		else
-			cout << "NO\n";
-		for (int i = 1; i <= 20000; ++i)
-		{
-			visited[i] = false;
-			s[i].clear();
-		}
+			std::cout << "YES\n";
 	}
 }
