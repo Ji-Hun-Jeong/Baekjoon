@@ -1,108 +1,99 @@
 #include <iostream>
 #include <queue>
-#include <vector>
 #include <string>
-#include <set>
 #include <algorithm>
-using namespace std;
-#define INT_MAX 214783647
-int N, E;
-int v1, v2;
-int dist[801];
-struct Edge
+#include <climits>
+
+enum { MaxVertex = 20001 };
+int32_t N, E;
+struct TEdgeInfo
 {
-	int num;
-	int distance;
-	friend bool operator>(const Edge& one, const Edge& two);
+	int32_t Vertex;
+	int32_t Weight;
 };
-bool operator>(const Edge& one, const Edge& two)
+bool operator < (const TEdgeInfo& InA, const TEdgeInfo& InB)
 {
-	return one.distance > two.distance;
+	return InA.Weight > InB.Weight;
 }
-struct Node
+std::vector<TEdgeInfo> VertexEdgeInfos[MaxVertex];
+
+int32_t Dijkstra(int32_t InStart, int32_t InFinish)
 {
-public:
-	bool visited = false;
-	vector<Edge> vecEdge;
-public:
-	void InsertEdge(int v, int dis)
+	int32_t MinDist[MaxVertex];
+	std::fill(MinDist + 1, MinDist + N + 1, INT_MAX);
+
+	std::priority_queue<TEdgeInfo> EdgeInfos;
+	EdgeInfos.emplace(InStart, 0);
+	MinDist[InStart] = 0;
+
+	while (EdgeInfos.empty() == false)
 	{
-		vecEdge.push_back({ v,dis });
-	}
-};
-Node arr[801];
-void InsertEdge(int u, int v, int dis)
-{
-	arr[u].InsertEdge(v, dis);
-	arr[v].InsertEdge(u, dis);
-}
-void Init()
-{
-	for (int i = 1; i < 801; ++i)
-	{
-		dist[i] = INT_MAX;
-		arr[i].visited = false;
-	}
-}
-int Djikstra(int start, int end)
-{
-	Init();
-	priority_queue<Edge, vector<Edge>, greater<Edge>> q;
-	q.push({ start,0 });
-	dist[start] = 0;
-	while (!q.empty())
-	{
-		Edge edge = q.top();
-		q.pop();
-		Node& node = arr[edge.num];
-		if (node.visited)
+		TEdgeInfo EdgeInfo = EdgeInfos.top();
+		EdgeInfos.pop();
+
+		int32_t Vertex = EdgeInfo.Vertex;
+		int32_t Weight = EdgeInfo.Weight;
+
+		if (Vertex == InFinish)
+			break;
+
+		if (Weight > MinDist[Vertex])
 			continue;
-		node.visited = true;
-		for (int i = 0; i < node.vecEdge.size(); ++i)
+
+		const auto& AdjEdgeInfos = VertexEdgeInfos[Vertex];
+		for (TEdgeInfo AdjEdgeInfo : AdjEdgeInfos)
 		{
-			int linkNodeNum = node.vecEdge[i].num;
-			if (arr[linkNodeNum].visited)
-				continue;
-			if (dist[edge.num] + node.vecEdge[i].distance < dist[linkNodeNum])
-				dist[linkNodeNum] = dist[edge.num] + node.vecEdge[i].distance;
-			q.push({ linkNodeNum, dist[linkNodeNum]});
+			int32_t AdjVertex = AdjEdgeInfo.Vertex;
+			int32_t AdjWeight = AdjEdgeInfo.Weight;
+
+			int32_t FinalAdjWeight = Weight + AdjWeight;
+			if (FinalAdjWeight < MinDist[AdjVertex])
+			{
+				MinDist[AdjVertex] = FinalAdjWeight;
+				EdgeInfos.emplace(AdjVertex, FinalAdjWeight);
+			}
 		}
 	}
-	return dist[end];
-}
-
-int Calculate()
-{
-	int sum1 = 0, sum2 = 0;
-	int first, second, third;
-	first = Djikstra(1, v1);
-	second = Djikstra(v1, v2);
-	third = Djikstra(v2, N);
-	sum1 = first + second + third;
-	if (INT_MAX == first || INT_MAX == second || INT_MAX == third)
-		sum1 = -1;
-	
-	first = Djikstra(1, v2);
-	second = Djikstra(v2, v1);
-	third = Djikstra(v1, N);
-	sum2 = first + second + third;
-	if (INT_MAX == first || INT_MAX == second || INT_MAX == third)
-		sum2 = -1;
-	return min(sum1, sum2);
+	return MinDist[InFinish];
 }
 int main()
 {
-	ios::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
-	cin >> N >> E;
-	for (int i = 0; i < E; ++i)
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+	std::cout.tie(nullptr);
+
+	std::cin >> N >> E;
+
+	for (int32_t i = 1; i <= E; ++i)
 	{
-		int u, v, d;
-		cin >> u >> v >> d;
-		InsertEdge(u, v, d);
+		int32_t a, b, c;
+		std::cin >> a >> b >> c;
+		VertexEdgeInfos[a].emplace_back(b, c);
+		VertexEdgeInfos[b].emplace_back(a, c);
 	}
-	cin >> v1 >> v2;
-	int result = Calculate();
-	cout << result;
+	int32_t v1 = 0, v2 = 0;
+	std::cin >> v1 >> v2;
+
+	int32_t Tov1 = Dijkstra(1, v1);
+	int32_t Tov2 = Dijkstra(1, v2);
+	int32_t Tov1v2 = Dijkstra(v1, v2);
+	int32_t Tov1N = Dijkstra(v1, N);
+	int32_t Tov2N = Dijkstra(v2, N);
+	if (Tov1v2 == INT_MAX)
+	{
+		std::cout << -1;
+		return 0;
+	}
+
+	int32_t Final = -1;
+	if (Tov1 != INT_MAX && Tov2N != INT_MAX)
+		Final = Tov1 + Tov1v2 + Tov2N;
+
+	if (Tov2 != INT_MAX && Tov1N != INT_MAX)
+	{
+		int32_t B = Tov2 + Tov1v2 + Tov1N;
+		Final = std::min(Final, B);
+	}
+
+	std::cout << Final;
 }
