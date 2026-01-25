@@ -1,57 +1,48 @@
 #include <iostream>
 #include <queue>
-#include <vector>
 #include <string>
-#include <set>
 #include <algorithm>
-using namespace std;
-int N, K;
-int arr[100001];
-bool visited[100001];
-void Bfs()
-{
-	queue<int> q;
-	q.push(N);
-	visited[N] = true;
-	while (!q.empty())
-	{
-		int idx = q.front();
-		q.pop();
-		if (idx * 2 <= 100000)
-		{
-			if (!visited[idx * 2])
-			{
-				q.push(idx * 2);
-				visited[idx * 2] = true;
-				arr[idx * 2] = arr[idx];
-			}
-		}
-        if (0 <= idx - 1)
-		{
-			if (!visited[idx - 1])
-			{
-				q.push(idx - 1);
-				visited[idx - 1] = true;
-				arr[idx - 1] = arr[idx] + 1;
-			}
-		}
-		if (idx + 1 <= 100000)
-		{
-			if (!visited[idx + 1])
-			{
-				q.push(idx + 1);
-				visited[idx + 1] = true;
-				arr[idx + 1] = arr[idx] + 1;
-			}
-		}
-	}
-}
+#include <climits>
+
+enum { MaxVertex = 100001 };
+int32_t Times[MaxVertex];
+int32_t N, K;
 int main()
 {
-	ios::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
-	cin >> N >> K;
-	Bfs();
-	cout << arr[K];
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+	std::cout.tie(nullptr);
+
+	std::cin >> N >> K;
+
+	std::fill(Times, Times + MaxVertex, INT_MAX);
+	Times[N] = 0;
+	std::queue<int32_t> Vertices;
+	Vertices.emplace(N);
+
+	while (Vertices.empty() == false)
+	{
+		int32_t Vertex = Vertices.front();
+		Vertices.pop();
+
+		if (Vertex == K)
+			break;
+
+		int32_t NextVertices[] = { Vertex * 2,  Vertex - 1, Vertex + 1, };
+		for (int32_t i = 0; i < 3; ++i)
+		{
+			int32_t NextVertex = NextVertices[i];
+			if (NextVertex >= MaxVertex)
+				continue;
+			if (Times[NextVertex] != INT_MAX)
+				continue;
+			int32_t Offset = 1;
+			if (i == 0)
+				Offset = 0;
+			Times[NextVertex] = std::min(Times[NextVertex], Times[Vertex] + Offset);
+			Vertices.emplace(NextVertex);
+		}
+	}
+
+	std::cout << Times[K];
 }
