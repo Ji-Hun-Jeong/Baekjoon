@@ -30,7 +30,7 @@ int main()
 
 	std::fill(MinDist + 1, MinDist + 1 + N, INT_MAX);
 	MinDist[1] = 0;
-	for (int64_t i = 1; i <= N; ++i)
+	for (int64_t i = 1; i < N; ++i)
 	{
 		for (TEdge Edge : Edges)
 		{
