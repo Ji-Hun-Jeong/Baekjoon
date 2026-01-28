@@ -34,13 +34,11 @@ int main()
 			Nodes.emplace(i);
 		}
 
-	std::vector<int32_t> Result;
-	Result.reserve(N);
 	while (Nodes.empty() == false)
 	{
 		int32_t Node = Nodes.front();
 		Nodes.pop();
-		Result.push_back(Node);
+		std::cout << Node << " ";
 
 		for (int32_t NextNode : Edges[Node])
 		{
@@ -49,7 +47,4 @@ int main()
 				Nodes.emplace(NextNode);
 		}
 	}
-
-	for (int32_t Value : Result)
-		std::cout << Value << " ";
 }
