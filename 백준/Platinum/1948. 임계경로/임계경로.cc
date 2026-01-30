@@ -12,17 +12,14 @@ struct TEdge
 	int32_t City;
 	int32_t Time;
 };
-std::vector<TEdge> AdjCityArray[MaxCity];
+std::vector<TEdge> EdgesArray[MaxCity];
+std::vector<TEdge> BackEdgesArray[MaxCity];
 int32_t RefCount[MaxCity];
+int32_t MaxTimes[MaxCity];
 int32_t Start, End;
-struct TCity
-{
-	// 이전 도시번호와 그 도시로부터 왔을 때의 시간
-	std::vector<TEdge> PrevCitys;
-};
-TCity CityInfos[MaxCity];
-TCity FinalInfos[MaxCity];
+
 bool bVisited[MaxCity];
+
 int main()
 {
 	std::ios::sync_with_stdio(false);
@@ -34,7 +31,8 @@ int main()
 	{
 		int32_t a, b, c;
 		std::cin >> a >> b >> c;
-		AdjCityArray[a].emplace_back(b, c);
+		EdgesArray[a].emplace_back(b, c);
+		BackEdgesArray[b].emplace_back(a, c);
 		RefCount[b] += 1;
 	}
 	std::cin >> Start >> End;
@@ -46,53 +44,43 @@ int main()
 		int32_t City = Citys.front();
 		Citys.pop();
 
-		// 먼저 지금까지 나한테 온 최댓값 거리 구하고 그것만 남기고 나머지 다 버리기
-		TCity CityInfo = CityInfos[City];
-		const auto& PrevCitys = CityInfo.PrevCitys;
-		int32_t MaxTime = 0;
-		for (TEdge PrevCity : PrevCitys)
-			MaxTime = std::max(MaxTime, PrevCity.Time);
-
-		TCity& FinalInfo = FinalInfos[City];
-		FinalInfo.PrevCitys.reserve(PrevCitys.size());
-		for (TEdge PrevCity : PrevCitys)
-		{
-			if (PrevCity.Time == MaxTime)
-				FinalInfo.PrevCitys.push_back(PrevCity);
-		}
-
-		const auto& NextCitys = AdjCityArray[City];
+		int32_t MaxTime = MaxTimes[City];
+		const auto& NextCitys = EdgesArray[City];
 		for (TEdge NextCityInfo : NextCitys)
 		{
-			TEdge MyInfo;
-			MyInfo.City = City;
-			MyInfo.Time = MaxTime + NextCityInfo.Time;
-			CityInfos[NextCityInfo.City].PrevCitys.push_back(MyInfo);
+			int32_t NextCity = NextCityInfo.City;
+			int32_t Time = NextCityInfo.Time;
+			MaxTimes[NextCity] = std::max(MaxTimes[NextCity], MaxTime + Time);
 			RefCount[NextCityInfo.City] -= 1;
 			if (RefCount[NextCityInfo.City] == 0)
 				Citys.emplace(NextCityInfo.City);
 		}
 	}
-	// 여기서부터는 이제 돌아가야함
-	std::queue<int32_t> BackCitys;
-	BackCitys.push(End);
+
+	Citys.push(End);
 	bVisited[End] = true;
 
 	int32_t Num = 0;
-	while (BackCitys.empty() == false)
+	while (Citys.empty() == false)
 	{
-		int32_t City = BackCitys.front();
-		BackCitys.pop();
+		int32_t City = Citys.front();
+		Citys.pop();
 
-		const auto& FinalInfo = FinalInfos[City];
-		for (TEdge PrevCity : FinalInfo.PrevCitys)
+		const auto& BackAdjEdges = BackEdgesArray[City];
+		for (TEdge BackEdge : BackAdjEdges)
 		{
-			Num += 1;
-			if (bVisited[PrevCity.City])
+			int32_t PrevCity = BackEdge.City;
+			int32_t Time = BackEdge.Time;
+
+			if (MaxTimes[PrevCity] + Time != MaxTimes[City])
 				continue;
-			bVisited[PrevCity.City] = true;
-			BackCitys.push(PrevCity.City);
+			
+			Num += 1;
+			if (bVisited[PrevCity])
+				continue;
+			bVisited[PrevCity] = true;
+			Citys.push(PrevCity);
 		}
 	}
-	std::cout << FinalInfos[End].PrevCitys[0].Time << "\n" << Num;
+	std::cout << MaxTimes[End] << '\n' << Num;
 }
