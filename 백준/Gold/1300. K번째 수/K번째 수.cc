@@ -2,8 +2,9 @@
 #include <queue>
 #include <string>
 #include <algorithm>
+#include <climits>
+#include <array>
 
-int32_t N, K;
 
 int main()
 {
@@ -11,27 +12,22 @@ int main()
 	std::cin.tie(nullptr);
 	std::cout.tie(nullptr);
 
+	size_t N, K;
 	std::cin >> N >> K;
 
 	size_t Left = 1;
-	size_t Right = K;
-	size_t Min = K;
+	size_t Right = N * N;
 	while (Left <= Right)
 	{
 		size_t Mid = (Left + Right) / 2;
-		size_t Cnt = 0;
+		size_t Count = 0;
+		for (int32_t i = 1; i <= N; ++i)
+			Count += std::min(Mid / i, N);
 
-		for (size_t i = 1; i <= N; ++i)
-			Cnt += std::min<size_t>(N, Mid / i);
-
-		if (Cnt >= K)
-		{
+		if (Count >= K)
 			Right = Mid - 1;
-			Min = std::min<size_t>(Min, Mid);
-		}
 		else
 			Left = Mid + 1;
-			
 	}
-	std::cout << Min;
+	std::cout << Left;
 }
