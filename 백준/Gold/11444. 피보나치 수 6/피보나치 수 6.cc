@@ -1,44 +1,51 @@
 #include <iostream>
 #include <queue>
-#include <vector>
 #include <string>
 #include <algorithm>
-#include <map>
-using namespace std;
-typedef unsigned long long ulonglong;
-ulonglong N;
-map<ulonglong, ulonglong> m;
-ulonglong dev(ulonglong n)
+#include <climits>
+#include <array>
+
+enum { Max = 2, D = 1000000007 };
+// 1000000007
+size_t Matrix1[Max][Max] = { 1,1,1,0 };
+size_t Matrix2[Max][Max] = { 1,1,1,0 };
+void Mul(const size_t InSrc1[][Max], const size_t InSrc2[][Max], size_t InDst[][Max])
 {
-	if (n <= 1) return n;
-	auto iter = m.find(n);
-	if (iter != m.end()) return iter->second;
-	ulonglong mid = n / 2;
-	if (0 == n % 2)
-	{
-		ulonglong a = dev(mid);
-		ulonglong b = dev(mid - 1);
-		ulonglong r = ((m.find(mid)->second + m.find(mid - 1)->second) * a + m.find(mid)->second * b)% 1000000007;
-		m.insert(make_pair(n, r));
-		return r;
-	}
-	else
-	{
-		ulonglong a = dev(mid + 1);
-		ulonglong b = dev(mid);
-		ulonglong r = (m.find(mid + 1)->second * a + m.find(mid)->second * b) % 1000000007;
-		m.insert(make_pair(n, r));
-		return r;
-	}
+	size_t Temp[Max][Max] = { 0 };
+
+	for (int32_t i = 0; i < Max; ++i)
+		for (int32_t j = 0; j < Max; ++j)
+			for (int32_t k = 0; k < Max; ++k)
+			{
+				Temp[i][j] += (InSrc1[i][k] * InSrc2[k][j]) % D;
+				Temp[i][j] %= D;
+			}
+
+	for (int32_t i = 0; i < Max; ++i)
+		for (int32_t j = 0; j < Max; ++j)
+			InDst[i][j] = Temp[i][j];
 }
+
+void Devide(size_t InN)
+{
+	if (InN <= 1)
+		return;
+	Devide(InN / 2);
+	Mul(Matrix2, Matrix2, Matrix2);
+	if (InN % 2 == 1)
+		Mul(Matrix1, Matrix2, Matrix2);
+}
+
 int main()
 {
-	ios::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
-	cin >> N;
-	m.insert(make_pair(0, 0));
-	m.insert(make_pair(1, 1));
-	m.insert(make_pair(2, 1));
-	cout << dev(N);
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+	std::cout.tie(nullptr);
+
+	size_t N = 0;
+	std::cin >> N;
+
+	Devide(N);
+
+	std::cout << Matrix2[1][0];
 }
