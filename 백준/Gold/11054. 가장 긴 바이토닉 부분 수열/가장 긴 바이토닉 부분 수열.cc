@@ -1,44 +1,52 @@
 #include <iostream>
 #include <queue>
-#include <vector>
 #include <string>
-#include <set>
 #include <algorithm>
-using namespace std;
-int arr[1001];
-int dp1[1001];
-int dp2[1001];
+#include <climits>
+#include <array>
+
+enum { Max = 1001 };
 int main()
 {
-	ios::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
-	int n;
-	cin >> n;
-	for (int i = 1; i <= n; ++i)
-		cin >> arr[i];
-	std::fill(dp1, dp1 + 1001, 1);
-	std::fill(dp2, dp2 + 1001, 1);
-	for (int i = 2; i <= n; ++i)
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+	std::cout.tie(nullptr);
+
+	int32_t N;
+	std::cin >> N;
+	std::array<int32_t, Max> Arr = { 0 };
+	std::array<int32_t, Max> DP[2] = { 0 };
+
+	for (int32_t i = 1; i <= N; ++i)
+		std::cin >> Arr[i];
+
+	// Up
+	// UpDown
+	DP[0][1] = 1;
+	DP[1][1] = 1;
+
+	int32_t Max = 1;
+	for (int32_t i = 2; i <= N; ++i)
 	{
-		for (int j = 1; j <= i; ++j)
+		for (int32_t j = i - 1; j >= 1; --j)
 		{
-			if (arr[i] > arr[j])
-				dp1[i] = max(dp1[i], dp1[j] + 1);
+			if (Arr[j] < Arr[i])
+				DP[0][i] = std::max<int32_t>(DP[0][i], DP[0][j] + 1);
+			else if (Arr[j] > Arr[i])
+			{
+				DP[1][i] = std::max<int32_t>(DP[1][i], DP[0][j] + 1);
+				DP[1][i] = std::max<int32_t>(DP[1][i], DP[1][j] + 1);
+			}
+			else
+			{
+				DP[0][i] = std::max<int32_t>(DP[0][i], DP[0][j]);
+				DP[1][i] = std::max<int32_t>(DP[1][i], DP[1][j]);
+			}
+			DP[0][i] = std::max<int32_t>(DP[0][i], 1);
+			DP[1][i] = std::max<int32_t>(DP[1][i], 1);
 		}
+		Max = std::max<int32_t>(Max, DP[0][i]);
+		Max = std::max<int32_t>(Max, DP[1][i]);
 	}
-	for (int i = n; i >= 1; --i)
-	{
-		for (int j = i; j <= n; ++j)
-		{
-			if (arr[i] > arr[j])
-				dp2[i] = max(dp2[i], dp2[j] + 1);
-		}
-	}
-	int Max = 1;
-	for (int i = 1; i <= n; ++i)
-	{
-		Max = max(Max, dp1[i] + dp2[i] - 1);
-	}
-	cout << Max;
+	std::cout << Max;
 }
