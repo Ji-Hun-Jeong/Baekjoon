@@ -1,31 +1,30 @@
 #include <iostream>
-#include <vector>
+#include <queue>
 #include <string>
 #include <algorithm>
-using namespace std;
+#include <climits>
+#include <array>
 
+enum {Max = 301};
 int main()
 {
-	ios::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+	std::cout.tie(nullptr);
 
-	int n, stair[301];
-	int dp[301];
+	int32_t N;
+	std::cin >> N;
+	int32_t Arr[Max] = { 0 };
+	int32_t DP[Max] = { 0 };
 
+	for (int32_t i = 1; i <= N; ++i)
+		std::cin >> Arr[i];
 
-	cin >> n;
-	for (int i = 0; i < n; i++) {
-		cin >> stair[i];
-	}
+	DP[1] = Arr[1];
+	DP[2] = Arr[1] + Arr[2];
 
-	dp[0] = stair[0];
-	dp[1] = max(stair[0] + stair[1], stair[1]);
-	dp[2] = max(stair[0] + stair[2], stair[1] + stair[2]);
+	for (int32_t i = 3; i <= N; ++i)
+		DP[i] = std::max<int32_t>(DP[i - 2], DP[i - 3] + Arr[i - 1]) + Arr[i];
 
-	for (int i = 3; i < n; i++) 
-	{
-		dp[i] = max(dp[i - 2] + stair[i], stair[i - 1] + stair[i] + dp[i - 3]);
-	}
-	cout << dp[n - 1] << '\n';
+	std::cout << DP[N];
 }
