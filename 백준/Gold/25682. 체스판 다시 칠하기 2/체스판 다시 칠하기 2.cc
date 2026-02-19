@@ -1,50 +1,55 @@
 #include <iostream>
-#include <vector>
+#include <queue>
 #include <string>
 #include <algorithm>
-using namespace std;
-int arr[2001][2001];
-int chess0[2001][2001];
-int chess1[2001][2001];
+#include <climits>
+#include <array>
+
+enum { Max = 2001 };
+char Board[Max][Max] = { 0 };
+int32_t ChessB[Max][Max];
+int32_t ChessW[Max][Max];
 int main()
 {
-	ios::sync_with_stdio(false);
-	cin.tie(nullptr);
-	cout.tie(nullptr);
-	int n, m, k;
-	cin >> n >> m >> k;
-	char ch = 0;
-	for (int i = 1; i <= n; ++i)
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+	std::cout.tie(nullptr);
+
+	int32_t N, M, K;
+	std::cin >> N >> M >> K;
+
+	for (int32_t i = 1; i <= N; ++i)
 	{
-		for (int j = 1; j <= m; ++j)
+		for (int32_t j = 1; j <= M; ++j)
 		{
-			cin >> ch;
-			if ('W' == ch)
-				arr[i][j] = 1;
-			else
-				arr[i][j] = 0;
-			if((i+j)%2==0)
+			std::cin >> Board[i][j];
+			ChessW[i][j] = ChessW[i][j - 1] + ChessW[i - 1][j] - ChessW[i - 1][j - 1];
+			ChessB[i][j] = ChessB[i][j - 1] + ChessB[i - 1][j] - ChessB[i - 1][j - 1];
+			int32_t V = (i + j) % 2;
+			if (V == 1)
 			{
-				chess0[i][j] = arr[i][j] == 0 ? 0 : 1;
-				chess1[i][j] = arr[i][j] == 1 ? 0 : 1;
+				if (Board[i][j] == 'B')
+					ChessB[i][j] += 1;
+				else
+					ChessW[i][j] += 1;
 			}
 			else
 			{
-				chess0[i][j] = arr[i][j] == 1 ? 0 : 1;
-				chess1[i][j] = arr[i][j] == 0 ? 0 : 1;
+				if (Board[i][j] == 'W')
+					ChessB[i][j] += 1;
+				else
+					ChessW[i][j] += 1;
 			}
-			chess0[i][j] += chess0[i - 1][j] + chess0[i][j - 1] - chess0[i - 1][j - 1];
-			chess1[i][j] += chess1[i - 1][j] + chess1[i][j - 1] - chess1[i - 1][j - 1];
 		}
 	}
-	int Min = 2147483647;
-	for (int i = k; i <= n; ++i)
+	int32_t Min = INT_MAX;
+	for (int32_t i = K; i <= N; ++i)
 	{
-		for (int j = k; j <= m; ++j)
+		for (int32_t j = K; j <= M; ++j)
 		{
-			Min = min(Min, min(chess0[i][j] - chess0[i - k][j] - chess0[i][j - k] + chess0[i - k][j - k]
-				, chess1[i][j] - chess1[i - k][j] - chess1[i][j - k] + chess1[i - k][j - k]));
+			Min = std::min<int32_t>(Min, ChessW[i][j] - (ChessW[i - K][j] + ChessW[i][j - K] - ChessW[i - K][j - K]));
+			Min = std::min<int32_t>(Min, ChessB[i][j] - (ChessB[i - K][j] + ChessB[i][j - K] - ChessB[i - K][j - K]));
 		}
 	}
-	cout << Min;
+	std::cout << Min;
 }
