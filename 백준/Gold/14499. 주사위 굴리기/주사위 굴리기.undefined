@@ -1,0 +1,172 @@
+#include <print>
+#include <iostream>
+#include <string>
+#include <climits>
+#include <array>
+#include <vector>
+#include <queue>
+#include <algorithm>
+#include <cassert>
+
+int32_t N, M, R, C, K;
+
+class CDice
+{
+	enum class EHeightType : uint16_t
+	{
+		Front, Top, Back, Bottom, End
+	};
+	enum class EWidthType : uint16_t
+	{
+		Left, Top, Right, End,
+	};
+public:
+	CDice(int32_t InX, int32_t InY)
+		: R(InX), C(InY)
+	{
+		for (int32_t i = 0; i < 4; ++i)
+			HeightLine.push_back(0);
+		for (int32_t i = 0; i < 3; ++i)
+			WidthLine.push_back(0);
+	}
+	~CDice() = default;
+
+public:
+	bool Move(uint16_t InMoveType)
+	{
+		switch (InMoveType)
+		{
+		case 1:
+			return MoveWidth(1);
+			break;
+		case 2:
+			return MoveWidth(-1);
+			break;
+		case 3:
+			return MoveHeight(-1);
+			break;
+		case 4:
+			return MoveHeight(1);
+			break;
+		default:
+			assert(0);
+			break;
+		}
+		return false;
+	}
+
+	uint16_t& GetBottomRef() { return HeightLine[size_t(EHeightType::Bottom)]; }
+	uint16_t GetTop() const { return HeightLine[size_t(EHeightType::Top)]; }
+
+private:
+	bool MoveHeight(int32_t InDir)
+	{
+		int32_t NextR = R + InDir;
+		if (NextR < 0 || NextR >= N)
+			return false;
+
+		if (InDir == -1)
+		{
+			uint16_t Front = HeightLine[size_t(EHeightType::Front)];
+			HeightLine.pop_front();
+			HeightLine.push_back(Front);
+		}
+		else if (InDir == 1)
+		{
+			uint16_t Bottom = HeightLine[size_t(EHeightType::Bottom)];
+			HeightLine.pop_back();
+			HeightLine.push_front(Bottom);
+		}
+		else
+			assert(0);
+		WidthLine[size_t(EWidthType::Top)] = HeightLine[size_t(EHeightType::Top)];
+		assert(HeightLine.size() == 4);
+
+		R = NextR;
+
+		return true;
+	}
+	bool MoveWidth(int32_t InDir)
+	{
+		int32_t NextC = C + InDir;
+		if (NextC < 0 || NextC >= M)
+			return false;
+
+		uint16_t Bottom = HeightLine[size_t(EHeightType::Bottom)];
+
+		if (InDir == -1)
+		{
+			uint16_t Left = WidthLine[size_t(EWidthType::Left)];
+			WidthLine.pop_front();
+			WidthLine.push_back(Bottom);
+			HeightLine[size_t(EHeightType::Bottom)] = Left;
+		}
+		else if (InDir == 1)
+		{
+			uint16_t Right = WidthLine[size_t(EWidthType::Right)];
+			WidthLine.pop_back();
+			WidthLine.push_front(Bottom);
+			HeightLine[size_t(EHeightType::Bottom)] = Right;
+		}
+		else
+			assert(0);
+		HeightLine[size_t(EHeightType::Top)] = WidthLine[size_t(EWidthType::Top)];
+		assert(WidthLine.size() == 3);
+
+		C = NextC;
+
+		return true;
+	}
+
+private:
+	std::deque<uint16_t> HeightLine;
+	std::deque<uint16_t> WidthLine;
+
+public:
+	int32_t R;
+	int32_t C;
+
+};
+int main()
+{
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+	std::cout.tie(nullptr);
+
+	std::cin >> N >> M >> R >> C >> K;
+
+	int32_t Board[20][20] = { 0 };
+	for (int32_t i = 0; i < N; ++i)
+		for (int32_t j = 0; j < M; ++j)
+			std::cin >> Board[i][j];
+
+	std::queue<uint16_t> Commands;
+	for (int32_t i = 0; i < K; ++i)
+	{
+		uint16_t Command;
+		std::cin >> Command;
+		Commands.push(Command);
+	}
+
+	CDice Dice(R, C);
+	while (Commands.empty() == false)
+	{
+		uint16_t Command = Commands.front();
+		Commands.pop();
+
+		if (Dice.Move(Command))
+		{
+			std::println("{}", Dice.GetTop());
+			int32_t& BoardValue = Board[Dice.R][Dice.C];
+			if (BoardValue)
+			{
+				Dice.GetBottomRef() = BoardValue;
+				BoardValue = 0;
+			}
+			else
+			{
+				BoardValue = Dice.GetBottomRef();
+			}
+		}
+	}
+}
