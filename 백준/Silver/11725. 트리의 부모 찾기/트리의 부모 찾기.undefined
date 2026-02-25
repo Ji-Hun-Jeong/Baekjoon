@@ -1,0 +1,56 @@
+#include <print>
+#include <iostream>
+#include <string>
+#include <climits>
+#include <array>
+#include <vector>
+#include <queue>
+#include <algorithm>
+
+std::array<std::vector<int32_t>, 100001> Vertices;
+int main()
+{
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+
+	std::array<bool, 100001> bVisited = { false };
+	int32_t N;
+	std::cin >> N;
+
+	for (int32_t i = 0; i < N - 1; ++i)
+	{
+		int32_t A, B;
+		std::cin >> A >> B;
+
+		Vertices[A].push_back(B);
+		Vertices[B].push_back(A);
+	}
+
+	std::queue<int32_t> Queue;
+	Queue.push(1);
+
+	std::array<int32_t, 100001> Parents = { 0 };
+	while (Queue.empty() == false)
+	{
+		int32_t Vertex = Queue.front();
+		Queue.pop();
+
+		if (bVisited[Vertex])
+			continue;
+		bVisited[Vertex] = true;
+
+		const auto& AdjVertices = Vertices[Vertex];
+		for (int32_t AdjVertex : AdjVertices)
+		{
+			if (bVisited[AdjVertex])
+				continue;
+			Parents[AdjVertex] = Vertex;
+			Queue.push(AdjVertex);
+		}
+	}
+
+	for (size_t i = 2; i <= N; ++i)
+	{
+		std::println("{}", Parents[i]);
+	}
+}
