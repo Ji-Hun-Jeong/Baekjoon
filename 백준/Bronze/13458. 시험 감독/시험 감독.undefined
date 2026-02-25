@@ -1,0 +1,39 @@
+#include <print>
+#include <iostream>
+#include <string>
+#include <climits>
+#include <array>
+#include <vector>
+#include <queue>
+#include <algorithm>
+
+enum { Max = 1000000 };
+std::array<int32_t, Max> Candidates;
+int main()
+{
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+	std::cout.tie(nullptr);
+
+	int32_t N;
+	std::cin >> N;
+
+	for (int32_t i = 0; i < N; ++i)
+		std::cin >> Candidates[i];
+
+	int32_t A, B;
+	std::cin >> A >> B;
+
+	size_t Count = 0;
+
+	for (int32_t i = 0; i < N; ++i)
+	{
+		Count += 1;
+		Candidates[i] -= A;
+		if (Candidates[i] <= 0)
+			continue;
+
+		Count += (Candidates[i] + B - 1) / B;
+	}
+	std::println("{}", Count);
+}
