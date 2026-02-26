@@ -13,6 +13,7 @@ enum { Max = 500 };
 int32_t Paper[Max][Max];
 int32_t MaxValue = 0;
 int32_t N, M;
+int32_t MaxMap = 0;
 
 struct TVec2
 {
@@ -32,8 +33,10 @@ bool operator == (TVec2 InA, TVec2 InB)
 
 TVec2 Offsets[4] = { {-1,0},{1,0},{0,1},{0,-1} };
 
-void Dfs(std::array<TVec2, 4>& InCheckPosVec, int32_t InCount)
+void Dfs(std::array<TVec2, 4>& InCheckPosVec, int32_t InCount, int32_t InCurrentSum)
 {
+	if (InCurrentSum + (4 - InCount) * MaxMap < MaxValue)
+		return;
 	if (InCount == 4)
 	{
 		int32_t Value = 0;
@@ -58,7 +61,7 @@ void Dfs(std::array<TVec2, 4>& InCheckPosVec, int32_t InCount)
 			if (Iter == InCheckPosVec.end())
 			{
 				InCheckPosVec[InCount] = NextCheckPos;
-				Dfs(InCheckPosVec, InCount + 1);
+				Dfs(InCheckPosVec, InCount + 1, InCurrentSum + Paper[NextCheckPos.Y][NextCheckPos.X]);
 				InCheckPosVec[InCount] = TVec2{ -1,-1 };
 			}
 		}
@@ -75,7 +78,10 @@ int main()
 
 	for (int32_t i = 0; i < N; ++i)
 		for (int32_t j = 0; j < M; ++j)
+		{
 			std::cin >> Paper[i][j];
+			MaxMap = std::max<int32_t>(MaxMap, Paper[i][j]);
+		}
 
 	std::array<TVec2, 4> Tetris;
 	std::fill(Tetris.begin(), Tetris.end(), TVec2{ -1,-1 });
@@ -85,7 +91,7 @@ int main()
 		for (int32_t j = 0; j < M; ++j)
 		{
 			Tetris[0] = TVec2{ j, i };
-			Dfs(Tetris, 1);
+			Dfs(Tetris, 1, Paper[i][j]);
 		}
 	}
 
