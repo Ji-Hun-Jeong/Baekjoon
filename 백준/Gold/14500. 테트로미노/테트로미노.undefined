@@ -1,0 +1,93 @@
+#include <print>
+#include <iostream>
+#include <string>
+#include <climits>
+#include <array>
+#include <vector>
+#include <queue>
+#include <algorithm>
+#include <cassert>
+
+
+enum { Max = 500 };
+int32_t Paper[Max][Max];
+int32_t MaxValue = 0;
+int32_t N, M;
+
+struct TVec2
+{
+	int32_t X = 0;
+	int32_t Y = 0;
+};
+
+TVec2 operator + (TVec2 InA, TVec2 InB)
+{
+	return TVec2{ InA.X + InB.X, InA.Y + InB.Y };
+}
+
+bool operator == (TVec2 InA, TVec2 InB)
+{
+	return InA.X == InB.X && InA.Y == InB.Y;
+}
+
+TVec2 Offsets[4] = { {-1,0},{1,0},{0,1},{0,-1} };
+
+void Dfs(std::array<TVec2, 4>& InCheckPosVec, int32_t InCount)
+{
+	if (InCount == 4)
+	{
+		int32_t Value = 0;
+		for (size_t i = 0; i < 4; ++i)
+		{
+			TVec2 Pos = InCheckPosVec[i];
+			Value += Paper[Pos.Y][Pos.X];
+		}
+		MaxValue = std::max<int32_t>(MaxValue, Value);
+		return;
+	}
+
+	for (TVec2 CheckPos : InCheckPosVec)
+	{
+		for (size_t i = 0; i < 4; ++i)
+		{
+			TVec2 NextCheckPos = CheckPos + Offsets[i];
+			if (NextCheckPos.X < 0 || NextCheckPos.X >= M || NextCheckPos.Y < 0 || NextCheckPos.Y >= N)
+				continue;
+
+			auto Iter = std::find(InCheckPosVec.begin(), InCheckPosVec.end(), NextCheckPos);
+			if (Iter == InCheckPosVec.end())
+			{
+				InCheckPosVec[InCount] = NextCheckPos;
+				Dfs(InCheckPosVec, InCount + 1);
+				InCheckPosVec[InCount] = TVec2{ -1,-1 };
+			}
+		}
+	}
+}
+
+int main()
+{
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+	std::cout.tie(nullptr);
+
+	std::cin >> N >> M;
+
+	for (int32_t i = 0; i < N; ++i)
+		for (int32_t j = 0; j < M; ++j)
+			std::cin >> Paper[i][j];
+
+	std::array<TVec2, 4> Tetris;
+	std::fill(Tetris.begin(), Tetris.end(), TVec2{ -1,-1 });
+
+	for (int32_t i = 0; i < N; ++i)
+	{
+		for (int32_t j = 0; j < M; ++j)
+		{
+			Tetris[0] = TVec2{ j, i };
+			Dfs(Tetris, 1);
+		}
+	}
+
+	std::println("{}", MaxValue);
+}
