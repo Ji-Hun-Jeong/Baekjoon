@@ -1,0 +1,85 @@
+#include <print>
+#include <iostream>
+#include <string>
+#include <climits>
+#include <array>
+#include <vector>
+#include <queue>
+#include <algorithm>
+#include <cassert>
+
+enum { Max = 100001 };
+int32_t N;
+struct TEdge
+{
+	int32_t Vertex = 0;
+	int32_t Weight = 0;
+};
+
+std::array<std::vector<TEdge>, Max> Tree;
+
+std::pair<int32_t, size_t> Bfs(int32_t InStartVertex)
+{
+	std::array<size_t, Max> Dist = { 0 };
+	std::array<bool, Max> bVisited = { false };
+
+	int32_t MaxV = 0;
+	size_t Max = 0;
+
+	std::queue<int32_t> Vertices;
+	Vertices.push(InStartVertex);
+
+	while (Vertices.empty() == false)
+	{
+		int32_t Vertex = Vertices.front();
+		Vertices.pop();
+
+		if (bVisited[Vertex])
+			continue;
+		bVisited[Vertex] = true;
+
+		const auto& Edges = Tree[Vertex];
+		for (TEdge Edge : Edges)
+		{
+			if (bVisited[Edge.Vertex])
+				continue;
+			Vertices.push(Edge.Vertex);
+			Dist[Edge.Vertex] = Dist[Vertex] + Edge.Weight;
+			if (Dist[Edge.Vertex] > Max)
+			{
+				Max = Dist[Edge.Vertex];
+				MaxV = Edge.Vertex;
+			}
+		}
+	}
+
+	return std::make_pair(MaxV, Max);
+}
+int main()
+{
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+	std::cout.tie(nullptr);
+
+	std::cin >> N;
+
+	for (int32_t i = 0; i < N; ++i)
+	{
+		int32_t Vertex;
+		std::cin >> Vertex;
+
+		while (true)
+		{
+			int32_t AdjVertex, Weight;
+			std::cin >> AdjVertex;
+			if (AdjVertex == -1)
+				break;
+			std::cin >> Weight;
+			Tree[Vertex].emplace_back(AdjVertex, Weight);
+		}
+	}
+
+	std::pair P1 = Bfs(1);
+	std::pair P2 = Bfs(P1.first);
+	std::println("{}", P2.second);
+}
