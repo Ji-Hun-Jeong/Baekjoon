@@ -1,0 +1,72 @@
+#include <print>
+#include <iostream>
+#include <string>
+#include <climits>
+#include <array>
+#include <vector>
+#include <queue>
+#include <algorithm>
+#include <cassert>
+
+int32_t N;
+struct TEdge
+{
+	int32_t Vertex = 0;
+	int32_t Weight = 0;
+};
+std::array<std::vector<TEdge>, 10001> Edges;
+
+std::pair<int32_t, int32_t> Bfs(int32_t InStart)
+{
+	std::array<bool, 10001> bVisited = { false };
+	std::array<int32_t, 10001> Dist = { 0 };
+	std::queue<int32_t> Vertices;
+	Vertices.push(InStart);
+
+	int32_t MaxVertex = 0;
+	int32_t MaxDist = 0;
+	while (Vertices.empty() == false)
+	{
+		int32_t Vertex = Vertices.front();
+		Vertices.pop();
+
+		bVisited[Vertex] = true;
+
+		for (TEdge Edge : Edges[Vertex])
+		{
+			if (bVisited[Edge.Vertex])
+				continue;
+			Dist[Edge.Vertex] = Dist[Vertex] + Edge.Weight;
+			if (Dist[Edge.Vertex] > MaxDist)
+			{
+				MaxDist = Dist[Edge.Vertex];
+				MaxVertex = Edge.Vertex;
+			}
+			Vertices.push(Edge.Vertex);
+		}
+	}
+
+	return { MaxVertex, MaxDist };
+}
+
+int main()
+{
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+	std::cout.tie(nullptr);
+
+	std::cin >> N;
+
+	for (int32_t i = 0; i < N - 1; ++i)
+	{
+		int32_t A, B, C;
+		std::cin >> A >> B >> C;
+		Edges[A].emplace_back(B, C);
+		Edges[B].emplace_back(A, C);
+	}
+
+	auto Pair1 = Bfs(1);
+	auto Pair2 = Bfs(Pair1.first);
+
+	std::cout << Pair2.second;
+}
