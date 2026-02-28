@@ -1,0 +1,106 @@
+#include <print>
+#include <iostream>
+#include <string>
+#include <climits>
+#include <array>
+#include <vector>
+#include <queue>
+#include <algorithm>
+#include <cassert>
+#include <cstring>
+
+int32_t N, M;
+int32_t Arr[8][8];
+
+struct TSpace
+{
+	int32_t X = 0;
+	int32_t Y = 0;
+};
+
+TSpace Offsets[4] = { {-1,0},{1,0}, {0,-1},{0,1} };
+
+int main()
+{
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+	std::cout.tie(nullptr);
+
+	std::cin >> N >> M;
+
+	std::queue<TSpace> StartBirus;
+	size_t NumOfWall = 0;
+	for (int32_t i = 0; i < N; ++i)
+		for (int32_t j = 0; j < M; ++j)
+		{
+			std::cin >> Arr[i][j];
+			if (Arr[i][j] == 2)
+				StartBirus.emplace(j, i);
+			else if (Arr[i][j] == 1)
+				NumOfWall += 1;
+		}
+
+	int32_t MaxNumOfSafeSpace = 0;
+	for (int32_t i = 0; i < 64; ++i)
+	{
+		int32_t Y1 = i / M;
+		int32_t X1 = i % M;
+		if (X1 >= M || Y1>= N)
+			continue;
+		if (Arr[Y1][X1] == 1 || Arr[Y1][X1] == 2)
+			continue;
+		Arr[Y1][X1] = 1;
+		for (int32_t j = i + 1; j < 64; ++j)
+		{
+			int32_t Y2 = j / M;
+			int32_t X2 = j % M;
+			if (X2 >= M || Y2 >= N)
+				continue;
+			if (Arr[Y2][X2] == 1 || Arr[Y2][X2] == 2)
+				continue;
+			Arr[Y2][X2] = 1;
+			for (int32_t k = j + 1; k < 64; ++k)
+			{
+				int32_t Y3 = k / M;
+				int32_t X3 = k % M;
+				if (X3 >= M || Y3 >= N)
+					continue;
+				if (Arr[Y3][X3] == 1 || Arr[Y3][X3] == 2)
+					continue;
+				Arr[Y3][X3] = 1;
+
+				int32_t Temp[8][8];
+				std::memcpy(Temp, Arr, 4 * 64);
+				std::queue<TSpace> Biruses = StartBirus;
+				size_t NumOfBirus = Biruses.size();
+				while (Biruses.empty() == false)
+				{
+					TSpace Birus = Biruses.front();
+					Biruses.pop();
+
+					for (int32_t i = 0; i < 4; ++i)
+					{
+						int32_t NextX = Birus.X + Offsets[i].X;
+						int32_t NextY = Birus.Y + Offsets[i].Y;
+
+						if (NextX < 0 || NextX >= M || NextY < 0 || NextY >= N)
+							continue;
+						if (Temp[NextY][NextX] == 1 || Temp[NextY][NextX] == 2)
+							continue;
+						Temp[NextY][NextX] = 2;
+						NumOfBirus += 1;
+						Biruses.emplace(NextX, NextY);
+					}
+				}
+				int32_t NumOfSafeSpace = N * M - NumOfBirus - (NumOfWall + 3);
+				MaxNumOfSafeSpace = std::max<int32_t>(MaxNumOfSafeSpace, NumOfSafeSpace);
+
+				Arr[Y3][X3] = 0;
+			}
+			Arr[Y2][X2] = 0;
+		}
+		Arr[Y1][X1] = 0;
+	}
+
+	std::cout << MaxNumOfSafeSpace;
+}
