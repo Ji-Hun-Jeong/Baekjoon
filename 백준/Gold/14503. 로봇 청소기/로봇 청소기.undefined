@@ -1,0 +1,133 @@
+#include <print>
+#include <iostream>
+#include <string>
+#include <climits>
+#include <array>
+#include <vector>
+#include <queue>
+#include <algorithm>
+#include <cassert>
+#include <cstring>
+
+int32_t N, M, r, c, d;
+
+struct TVec2
+{
+	int32_t X = 0;
+	int32_t Y = 0;
+};
+
+TVec2 operator + (TVec2 InA, TVec2 InB)
+{
+	return TVec2{ InA.X + InB.X, InA.Y + InB.Y };
+}
+TVec2 operator - (TVec2 InA, TVec2 InB)
+{
+	return TVec2{ InA.X - InB.X, InA.Y - InB.Y };
+}
+TVec2 Offsets[4] = { {-1,0},{1,0}, {0,-1},{0,1} };
+
+int32_t Room[50][50];
+
+class CRobot
+{
+public:
+	CRobot()
+		: Pos(c, r)
+	{
+		SetDir(d);
+	}
+	~CRobot() = default;
+
+public:
+	void Rotate()
+	{
+		Dir = TVec2{ Dir.Y, -Dir.X };
+	}
+	void SetDir(int32_t InDir)
+	{
+		if (InDir == 0)
+			Dir = TVec2{ 0, -1 };
+		else if (InDir == 1)
+			Dir = TVec2{ 1,0 };
+		else if (InDir == 2)
+			Dir = TVec2{ 0, 1 };
+		else if (InDir == 3)
+			Dir = TVec2{ -1,0 };
+		else
+			assert(0);
+	}
+	TVec2 GetNextPos()
+	{
+		return Pos + Dir;
+	}
+	TVec2 GetBackPos()
+	{
+		return Pos - Dir;
+	}
+
+	TVec2 Pos;
+	TVec2 Dir;
+
+};
+
+int main()
+{
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+	std::cout.tie(nullptr);
+
+	std::cin >> N >> M >> r >> c >> d;
+
+	bool bVisited[50][50] = { false };
+	for (int32_t i = 0; i < N; ++i)
+		for (int32_t j = 0; j < M; ++j)
+		{
+			std::cin >> Room[i][j];
+			if (Room[i][j] == 1)
+				bVisited[i][j] = true;
+		}
+
+	CRobot Robot;
+
+	int32_t Count = 0;
+	while (true)
+	{
+		TVec2 Pos = Robot.Pos;
+
+		if (bVisited[Pos.Y][Pos.X] == false)
+		{
+			bVisited[Pos.Y][Pos.X] = true;
+			Count += 1;
+		}
+
+		bool bFindEmptySpace = false;
+		for (int32_t i = 0; i < 4; ++i)
+		{
+			int32_t NextX = Pos.X + Offsets[i].X;
+			int32_t NextY = Pos.Y + Offsets[i].Y;
+			if (bVisited[NextY][NextX] == false)
+			{
+				bFindEmptySpace = true;
+				break;
+			}
+		}
+
+		if (bFindEmptySpace)
+		{
+			Robot.Rotate();
+			TVec2 NextPos = Robot.GetNextPos();
+			if (bVisited[NextPos.Y][NextPos.X] == false)
+				Robot.Pos = NextPos;
+		}
+		else
+		{
+			TVec2 BackPos = Robot.GetBackPos();
+			if (Room[BackPos.Y][BackPos.X] == 1)
+				break;
+			else
+				Robot.Pos = BackPos;
+		}
+	}
+	std::cout << Count;
+}
