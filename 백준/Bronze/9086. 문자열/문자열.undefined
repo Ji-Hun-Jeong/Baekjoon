@@ -1,0 +1,20 @@
+#include <iostream>
+#include <string>
+
+int main()
+{
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+	std::cout.tie(nullptr);
+
+	int32_t N;
+	(std::cin >> N).ignore();
+	while (N--)
+	{
+		std::string S;
+		std::getline(std::cin, S);
+
+		std::cout << S[0] << S[S.size() - 1]<<'\n';
+	}
+	
+}
