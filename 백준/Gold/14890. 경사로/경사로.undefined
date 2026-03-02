@@ -1,0 +1,131 @@
+#include <iostream>
+#include <string>
+#include <print>
+
+int32_t N, L;
+int32_t Arr[100][100] = { 0 };
+
+bool IsAllSameX(int32_t InY, int32_t InStart, int32_t InDir, int32_t InPivotHeight, bool* bInVisited)
+{
+	for (int32_t i = 0; i < L; ++i)
+	{
+		int32_t NextIndex = InStart + InDir * i;
+		if (NextIndex >= N || NextIndex < 0)
+			return false;
+		if (Arr[InY][NextIndex] != InPivotHeight || bInVisited[NextIndex])
+			return false;
+	}
+
+	for (int32_t i = 0; i < L; ++i)
+	{
+		int32_t NextIndex = InStart + InDir * i;
+		bInVisited[NextIndex] = true;
+	}
+
+	return true;
+}
+
+bool IsAllSameY(int32_t InX, int32_t InStart, int32_t InDir, int32_t InPivotHeight, bool* bInVisited)
+{
+	for (int32_t i = 0; i < L; ++i)
+	{
+		int32_t NextIndex = InStart + InDir * i;
+		if (NextIndex >= N || NextIndex < 0)
+			return false;
+		if (Arr[NextIndex][InX] != InPivotHeight || bInVisited[NextIndex])
+			return false;
+	}
+
+	for (int32_t i = 0; i < L; ++i)
+	{
+		int32_t NextIndex = InStart + InDir * i;
+		bInVisited[NextIndex] = true;
+	}
+
+	return true;
+}
+
+int main()
+{
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+	std::cout.tie(nullptr);
+
+
+	std::cin >> N >> L;
+
+
+	for (int32_t i = 0; i < N; ++i)
+		for (int32_t j = 0; j < N; ++j)
+			std::cin >> Arr[i][j];
+
+	int32_t Count = 0;
+	for (int32_t i = 0; i < N; ++i)
+	{
+		bool bVisited[100] = { false };
+		bool bRoad = true;
+		for (int32_t j = 0; j < N - 1; ++j)
+		{
+			int32_t Height = Arr[i][j];
+			int32_t NextHeight = Arr[i][j + 1];
+			int32_t HeightDiff = std::abs(Height - NextHeight);
+			if (HeightDiff > 1)
+			{
+				bRoad = false;
+				break;
+			}
+			if (HeightDiff == 0)
+				continue;
+
+			if (Height < NextHeight)
+				bRoad = IsAllSameX(i, j, -1, Height, bVisited);
+			else
+				bRoad = IsAllSameX(i, j + 1, 1, NextHeight, bVisited);
+
+			if (bRoad == false)
+				break;
+		}
+		if (bRoad)
+			Count += 1;
+		// 한 칸 뒤의 높이를 구한다.
+		// 현재 높이와 한 칸 뒤의 높이 차의 절대값을 구한다.
+		// 0이면 그냥 갈 수 있기때문에 스킵
+			// 그 차의 절대값이 1보다 크면 애초에 다리를 둘 수 없다.
+		// 1이하면 다리의 길이만큼 뒤 칸들의 높이도 일정한지 확인한다.
+			// 안되면 경사로를 둘 수 없다.
+		// 높이가 일정하면 경사로를 둔다. bVisited
+
+	}
+
+	for (int32_t i = 0; i < N; ++i)
+	{
+		bool bVisited[100] = { false };
+		bool bRoad = true;
+		for (int32_t j = 0; j < N - 1; ++j)
+		{
+			int32_t Height = Arr[j][i];
+			int32_t NextHeight = Arr[j + 1][i];
+			int32_t HeightDiff = std::abs(Height - NextHeight);
+			if (HeightDiff > 1)
+			{
+				bRoad = false;
+				break;
+			}
+			if (HeightDiff == 0)
+				continue;
+
+			if (Height < NextHeight)
+				bRoad = IsAllSameY(i, j, -1, Height, bVisited);
+			else
+				bRoad = IsAllSameY(i, j + 1, 1, NextHeight, bVisited);
+
+			if (bRoad == false)
+				break;
+		}
+		if (bRoad)
+			Count += 1;
+
+	}
+
+	std::cout << Count;
+}
