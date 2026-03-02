@@ -1,0 +1,40 @@
+#include <iostream>
+#include <string>
+#include <print>
+
+int main()
+{
+	std::ios::sync_with_stdio(false);
+	std::cin.tie(nullptr);
+	std::cout.tie(nullptr);
+
+	std::string A, B;
+	std::getline(std::cin, A, ' ');
+	std::getline(std::cin, B);
+
+	auto Swap = [](std::string* InStr)
+		{
+			size_t Left = 0;
+			size_t Right = InStr->size() - 1;
+
+			while (Left < Right)
+				std::swap(InStr->at(Left++), InStr->at(Right--));
+		};
+	Swap(&A);
+	Swap(&B);
+
+	for (size_t i = 0; i < 3; ++i)
+	{
+		if (A[i] < B[i])
+		{
+			std::cout << B;
+			break;
+		}
+		else if (A[i] > B[i])
+		{
+			std::cout << A;
+			break;
+		}
+
+	}
+}
