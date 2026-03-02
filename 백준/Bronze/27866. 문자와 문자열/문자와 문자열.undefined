@@ -1,0 +1,13 @@
+#include <iostream>
+#include <string>
+
+int main()
+{
+    std::string S;
+    std::getline(std::cin, S);
+    
+    int32_t N;
+    std::cin>>N;
+    
+    std::cout<<S[N-1];
+}
