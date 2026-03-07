@@ -10,7 +10,7 @@ int32_t GetRoot(size_t InValue)
 {
 	if (InValue == Parents[InValue])
 		return InValue;
-	return GetRoot(Parents[InValue]);
+	return Parents[InValue] = GetRoot(Parents[InValue]);
 }
 
 int main()
